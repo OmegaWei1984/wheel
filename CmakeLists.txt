@@ -1,0 +1,6 @@
+project(wheel)
+cmake_minimum_required(VERSION 3.16)
+include_directories(include)
+aux_source_directory(./src DIR_SRCS)
+add_definitions(-std=c++2a)
+add_executable(wheel ${DIR_SRCS})
