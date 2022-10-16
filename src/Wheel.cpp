@@ -37,3 +37,47 @@ void Wheel::wait()
         workerThreads[0]->join();
     }
 }
+
+uint32_t Wheel::newService(shared_ptr<string> type)
+{
+    auto srv = make_shared<Service>();
+    srv->type = type;
+    {
+        unique_lock<shared_mutex> wlock(rwlock);
+        srv->id = maxId;
+        ++maxId;
+        services.emplace(srv->id, srv);
+    }
+    srv->onInit();
+    return srv->id;
+}
+
+shared_ptr<Service> Wheel::getService(uint32_t id)
+{
+    shared_ptr<Service> srv = NULL;
+    {
+        shared_lock<shared_mutex> rlock(rwlock);
+        unordered_map<uint32_t, shared_ptr<Service>>::
+            iterator iter = services.find(id);
+        if (iter != services.end())
+        {
+            srv = iter->second;
+        }
+    }
+    return srv;
+}
+
+void Wheel::killService(uint32_t id)
+{
+    shared_ptr<Service> srv = getService(id);
+    if (!srv)
+    {
+        return;
+    }
+    srv->onExit();
+    srv->isExiting = true;
+    {
+        unique_lock<shared_mutex> wlock(rwlock);
+        services.erase(id);
+    }
+}
