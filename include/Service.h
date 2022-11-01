@@ -15,6 +15,8 @@ public:
     bool isExiting = false;
     queue<shared_ptr<BaseMsg>> msgQueue;
     mutex queueMutex;
+    bool inGlobal = false;
+    mutex inGlobalFlagMutex;
 
     Service();
     ~Service();
@@ -24,6 +26,7 @@ public:
     void pushMsg(shared_ptr<BaseMsg> msg);
     bool processMsg();
     void processMsgs(int max);
+    void setInGlobal(bool isInGlobal);
 
 private:
     shared_ptr<BaseMsg> popMsg();

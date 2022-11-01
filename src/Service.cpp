@@ -43,7 +43,15 @@ void Service::onExit()
 
 void Service::onMsg(shared_ptr<BaseMsg> msg)
 {
-    cout << "[" << id << "] onMsg" << endl;
+    if (msg->type == BaseMsg::TYPE::SERVICE) {
+        auto m = dynamic_pointer_cast<ServiceMsg>(msg);
+        cout << "[" << id << "] onMsg" << m->buff << endl;
+        auto msgRet = Wheel::inst->makeMsg(id, new char[9999999] {'p', 'i', 'n', 'g', '\0'}, 9999999);
+        Wheel::inst->send(m->source, msgRet);
+    }
+    else {
+        cout << "[" << id << "] onMsg" << endl;
+    }
 }
 
 bool Service::processMsg()
@@ -70,4 +78,10 @@ void Service::processMsgs(int max)
             break;
         }
     }
+}
+
+void Service::setInGlobal(bool isInGlobal)
+{
+    lock_guard<mutex> lock(inGlobalFlagMutex);
+    inGlobal = isInGlobal;
 }
