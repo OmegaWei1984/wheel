@@ -28,7 +28,6 @@ void Worker::operator() () {
             usleep(100);
         }
         else {
-            cout << "service: " << srv->id << endl;
             srv->processMsgs(eachNum);
             checkAndPutGlobal(srv);
         }

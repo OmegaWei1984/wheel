@@ -111,7 +111,6 @@ shared_ptr<Service> Wheel::popGQueue()
             srv = gQueue.front();
             gQueue.pop();
             --gQueueLen;
-            cout << "pop" << endl;
         }
     }
     return srv;
@@ -122,7 +121,6 @@ void Wheel::pushGQueue(shared_ptr<Service> srv)
     const lock_guard<mutex> gQueueLock(gQueueMutex);
     gQueue.push(srv);
     ++gQueueLen;
-    cout << "push" << endl;
 }
 
 shared_ptr<BaseMsg> Wheel::makeMsg(uint32_t source, char* buff, int len)
@@ -130,6 +128,7 @@ shared_ptr<BaseMsg> Wheel::makeMsg(uint32_t source, char* buff, int len)
     auto msg = make_shared<ServiceMsg>();
     msg->type = BaseMsg::TYPE::SERVICE;
     msg->source = source;
+    msg->buff = shared_ptr<char>(buff);
     msg->size = len;
     return msg;
 }

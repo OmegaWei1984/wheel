@@ -45,7 +45,7 @@ void Service::onMsg(shared_ptr<BaseMsg> msg)
 {
     if (msg->type == BaseMsg::TYPE::SERVICE) {
         auto m = dynamic_pointer_cast<ServiceMsg>(msg);
-        cout << "[" << id << "] onMsg" << m->buff << endl;
+        cout << "[" << id << "] onMsg: buff is " << m->buff << endl;
         auto msgRet = Wheel::inst->makeMsg(id, new char[9999999] {'p', 'i', 'n', 'g', '\0'}, 9999999);
         Wheel::inst->send(m->source, msgRet);
     }
