@@ -91,10 +91,10 @@ void Wheel::send(uint32_t toId, shared_ptr<BaseMsg> msg)
     }
     to->pushMsg(msg);
     bool hasPush = false;
-    if (!to->inGlobal) {
-        pushGQueue(to);
-        {
-            lock_guard<mutex> lock(to->inGlobalFlagMutex);
+    {
+        lock_guard<mutex> lock(to->inGlobalFlagMutex);
+        if (!to->inGlobal) {
+            pushGQueue(to);
             to->inGlobal = true;
             hasPush = true;
         }

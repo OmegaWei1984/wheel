@@ -6,7 +6,7 @@
 
 void Worker::checkAndPutGlobal(shared_ptr<Service> srv)
 {
-    if (!srv->isExiting) {
+    if (srv->isExiting) {
         return;
     }
 
