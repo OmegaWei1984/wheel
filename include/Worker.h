@@ -13,6 +13,7 @@ public:
     int id;
     int eachNum;
     void operator() ();
+    void workerWait();
 private:
     void checkAndPutGlobal(shared_ptr<Service> srv);
 };

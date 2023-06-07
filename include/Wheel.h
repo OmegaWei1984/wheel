@@ -16,6 +16,8 @@ public:
     unordered_map<uint32_t, shared_ptr<Service>> services;
     uint32_t maxId = 0;
     shared_mutex rwlock;
+    mutex sleepMutex;
+    int sleepCount = 0;
 
     Wheel();
     void start();
