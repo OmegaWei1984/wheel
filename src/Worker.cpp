@@ -33,7 +33,3 @@ void Worker::operator() () {
         }
     }
 }
-
-void Worker::workerWait() {
-    
-}

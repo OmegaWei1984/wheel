@@ -132,3 +132,11 @@ shared_ptr<BaseMsg> Wheel::makeMsg(uint32_t source, char* buff, int len)
     msg->size = len;
     return msg;
 }
+
+void Wheel::checkAndWeakUp() {
+    
+}
+
+void Wheel::workerWait() {
+
+}

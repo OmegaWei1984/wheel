@@ -16,7 +16,6 @@ public:
     unordered_map<uint32_t, shared_ptr<Service>> services;
     uint32_t maxId = 0;
     shared_mutex rwlock;
-    mutex sleepMutex;
     int sleepCount = 0;
 
     Wheel();
@@ -28,6 +27,8 @@ public:
     shared_ptr<Service> popGQueue();
     void pushGQueue(shared_ptr<Service> srv);
     shared_ptr<BaseMsg> makeMsg(uint32_t source, char* buff, int len);
+    void checkAndWeakUp();
+    void workerWait();
 
 private:
     int WORKER_NUM = 3;
