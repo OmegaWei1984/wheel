@@ -25,7 +25,8 @@ void Worker::operator() () {
     while (true) {
         shared_ptr<Service> srv = Wheel::inst->popGQueue();
         if (!srv) {
-            usleep(100);
+            // usleep(100);
+            Wheel::inst->workerWait();
         }
         else {
             srv->processMsgs(eachNum);

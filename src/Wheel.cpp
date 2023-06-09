@@ -99,6 +99,9 @@ void Wheel::send(uint32_t toId, shared_ptr<BaseMsg> msg)
             hasPush = true;
         }
     }
+    if (hasPush) {
+        checkAndWeakUp();
+    }
 }
 
 shared_ptr<Service> Wheel::popGQueue()
@@ -134,9 +137,19 @@ shared_ptr<BaseMsg> Wheel::makeMsg(uint32_t source, char* buff, int len)
 }
 
 void Wheel::checkAndWeakUp() {
-    
+    if (sleepCount == 0) {
+        return;
+    }
+
+    if (WORKER_NUM - sleepCount <= gQueueLen) {
+        cout << "weak up" << endl;
+        cv.notify_one();
+    }
 }
 
 void Wheel::workerWait() {
-
+    unique_lock<mutex> lockcv(cvMutex);
+    sleepCount++;
+    cv.wait(lockcv);
+    sleepCount--;
 }
