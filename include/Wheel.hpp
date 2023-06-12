@@ -7,6 +7,7 @@
 #include "Service.h"
 #include "Worker.h"
 #include "SocketWorker.h"
+#include "Conn.hpp"
 
 class Worker;
 
@@ -42,6 +43,7 @@ private:
     mutex gQueueMutex;
     SocketWorker *socketWorker;
     thread *socketThread;
+    unordered_map<uint32_t, shared_ptr<Conn>> conns;
 
     void startWorker();
     void startSocket();
