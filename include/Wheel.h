@@ -6,6 +6,7 @@
 
 #include "Service.h"
 #include "Worker.h"
+#include "SocketWorker.h"
 
 class Worker;
 
@@ -39,7 +40,10 @@ private:
     queue<shared_ptr<Service>> gQueue;
     int gQueueLen = 0;
     mutex gQueueMutex;
+    SocketWorker *socketWorker;
+    thread *socketThread;
 
     void startWorker();
+    void startSocket();
     shared_ptr<Service> getService(uint32_t id);
 };

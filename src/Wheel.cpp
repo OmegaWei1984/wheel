@@ -28,6 +28,7 @@ void Wheel::start()
 {
     cout << "hello, wheel!" << endl;
     startWorker();
+    startSocket();
 }
 
 void Wheel::wait()
@@ -152,4 +153,10 @@ void Wheel::workerWait() {
     sleepCount++;
     cv.wait(lockcv);
     sleepCount--;
+}
+
+void Wheel::startSocket() {
+    socketWorker = new SocketWorker();
+    socketWorker->init();
+    socketThread = new thread(*socketWorker);
 }
