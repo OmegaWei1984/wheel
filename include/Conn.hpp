@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
- using namespace std;
+
+using namespace std;
 
 class Conn {
 public:

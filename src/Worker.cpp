@@ -1,8 +1,8 @@
 #include <iostream>
 #include <unistd.h>
-#include "Worker.h"
-#include "Service.h"
-#include "Wheel.h"
+#include "Worker.hpp"
+#include "Service.hpp"
+#include "Wheel.hpp"
 
 void Worker::checkAndPutGlobal(shared_ptr<Service> srv)
 {

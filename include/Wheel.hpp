@@ -4,9 +4,9 @@
 #include <vector>
 #include <shared_mutex>
 
-#include "Service.h"
-#include "Worker.h"
-#include "SocketWorker.h"
+#include "Service.hpp"
+#include "Worker.hpp"
+#include "SocketWorker.hpp"
 #include "Conn.hpp"
 
 class Worker;
@@ -33,6 +33,9 @@ public:
     shared_ptr<BaseMsg> makeMsg(uint32_t source, char* buff, int len);
     void checkAndWeakUp();
     void workerWait();
+    int addConn(int fd, uint32_t id, Conn::TYPE type);
+    shared_ptr<Conn> getConn(int fd);
+    bool removeConn(int fd);
 
 private:
     int WORKER_NUM = 3;

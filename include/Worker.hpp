@@ -1,6 +1,6 @@
 #pragma once
 #include <thread>
-#include "Service.h"
+#include "Service.hpp"
 
 class Wheel;
 class Worker;

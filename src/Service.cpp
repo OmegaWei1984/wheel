@@ -1,5 +1,5 @@
-#include "Service.h"
-#include "Wheel.h"
+#include "Service.hpp"
+#include "Wheel.hpp"
 #include <iostream>
 #include <mutex>
 

@@ -2,7 +2,7 @@
 
 #include <queue>
 #include <thread>
-#include "Msg.h"
+#include "Msg.hpp"
 #include <mutex>
 
 using namespace std;

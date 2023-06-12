@@ -1,4 +1,4 @@
-#include "Wheel.h"
+#include "Wheel.hpp"
 #include <iostream>
 
 int test()
