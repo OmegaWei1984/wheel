@@ -44,7 +44,7 @@ uint32_t Wheel::newService(shared_ptr<string> type)
     auto srv = make_shared<Service>();
     srv->type = type;
     {
-        unique_lock<shared_mutex> wlock(rwlock);
+        unique_lock<shared_mutex> wlock(serviceRwlock);
         srv->id = maxId;
         ++maxId;
         services.emplace(srv->id, srv);
@@ -57,9 +57,9 @@ shared_ptr<Service> Wheel::getService(uint32_t id)
 {
     shared_ptr<Service> srv = NULL;
     {
-        shared_lock<shared_mutex> rlock(rwlock);
+        shared_lock<shared_mutex> rlock(serviceRwlock);
         unordered_map<uint32_t, shared_ptr<Service>>::
-            iterator iter = services.find(id);
+        iterator iter = services.find(id);
         if (iter != services.end())
         {
             srv = iter->second;
@@ -78,7 +78,7 @@ void Wheel::killService(uint32_t id)
     srv->onExit();
     srv->isExiting = true;
     {
-        unique_lock<shared_mutex> wlock(rwlock);
+        unique_lock<shared_mutex> wlock(serviceRwlock);
         services.erase(id);
     }
 }
@@ -141,7 +141,7 @@ void Wheel::checkAndWeakUp() {
     if (sleepCount == 0) {
         return;
     }
-
+    
     if (WORKER_NUM - sleepCount <= gQueueLen) {
         cout << "weak up" << endl;
         cv.notify_one();
@@ -159,4 +159,37 @@ void Wheel::startSocket() {
     socketWorker = new SocketWorker();
     socketWorker->init();
     socketThread = new thread(*socketWorker);
+}
+
+int Wheel::addConn(int fd, uint32_t id, Conn::TYPE type) {
+    auto conn = make_shared<Conn>();
+    conn->fd = fd;
+    conn->serviceId = id;
+    conn->type = type;
+    {
+        unique_lock<shared_mutex> wlock(connsRwlock);
+        conns.emplace(fd, conn);
+    }
+    return fd;
+}
+
+shared_ptr<Conn> Wheel::getConn(int fd) {
+    shared_ptr<Conn> conn = NULL;
+    {
+        shared_lock<shared_mutex> rlock(connsRwlock);
+        unordered_map<uint32_t, shared_ptr<Conn>>::iterator iter = conns.find(fd);
+        if (iter != conns.end()) {
+            conn = iter->second;
+        }
+    }
+    return conn;
+}
+
+bool Wheel::removeConn(int fd) {
+    bool result = false;
+    {
+        unique_lock<shared_mutex> wlock(connsRwlock);
+        result = (conns.erase(fd) == 1);
+    }
+    return result;
 }

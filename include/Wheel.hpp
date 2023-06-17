@@ -17,7 +17,8 @@ public:
     static Wheel* inst;
     unordered_map<uint32_t, shared_ptr<Service>> services;
     uint32_t maxId = 0;
-    shared_mutex rwlock;
+    shared_mutex serviceRwlock;
+    shared_mutex connsRwlock;
     condition_variable cv;
     mutex cvMutex;
     int sleepCount = 0;

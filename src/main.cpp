@@ -3,6 +3,13 @@
 
 int test()
 {
+    int id = Wheel::inst->addConn(1, 1, Conn::TYPE::listen);
+    auto conn = Wheel::inst->getConn(1);
+    assert(conn->fd == 1);
+    bool result = Wheel::inst->removeConn(1);
+    auto conn2 = Wheel::inst->getConn(1);
+    assert(conn2 == NULL);
+    
     auto pingType = make_shared<string>("ping");
     uint32_t ping1 = Wheel::inst->newService(pingType);
     uint32_t ping2 = Wheel::inst->newService(pingType);
