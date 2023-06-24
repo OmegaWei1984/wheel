@@ -1,5 +1,6 @@
 #include "Wheel.hpp"
 #include <iostream>
+#include<cassert>
 
 int test()
 {
