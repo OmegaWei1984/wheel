@@ -1,5 +1,10 @@
 #include <iostream>
 #include "Wheel.hpp"
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -192,4 +197,26 @@ bool Wheel::removeConn(int fd) {
         result = (conns.erase(fd) == 1);
     }
     return result;
+}
+
+int Wheel::listen(uint32_t port, uint32_t serviceId) {
+    int listenFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (listenFd <= 0) {
+        cout << "listen error, listenFd <= 0" << endl;
+        return -1;
+    }
+    fcntl(listenFd, F_SETFL, O_NONBLOCK);
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    int r = bind(listenFd, (struct sockaddr*)&addr, sizeof(addr));
+    if (r == -1) {
+        cout << "listen error, bind fail" << endl;
+        return -1;
+    }
+    r = listen(listenFd, 64);
+    addConn(listenFd, serviceId, Conn::TYPE::listen);
+    socketWorker->addEvent(listenFd);
+    return listenFd;
 }

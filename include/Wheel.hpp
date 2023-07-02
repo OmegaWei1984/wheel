@@ -37,6 +37,8 @@ public:
     int addConn(int fd, uint32_t id, Conn::TYPE type);
     shared_ptr<Conn> getConn(int fd);
     bool removeConn(int fd);
+    int listen(uint32_t prot, uint32_t serviceId);
+    void closeConn(uint32_t fd);
 
 private:
     int WORKER_NUM = 3;
