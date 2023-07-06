@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <vector>
 #include <shared_mutex>
+#include <condition_variable>
 
 #include "Service.hpp"
 #include "Worker.hpp"
