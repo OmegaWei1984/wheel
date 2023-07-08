@@ -33,7 +33,7 @@ void SocketWorker::addEvent(int fd) {
 }
 
 void SocketWorker::removeEvent(int fd) {
-    cout << "removeEvent fd: " << endl;
+    cout << "removeEvent fd: " << fd << endl;
     epoll_ctl(epollFd, EPOLL_CTL_DEL, fd, NULL);
 }
 
