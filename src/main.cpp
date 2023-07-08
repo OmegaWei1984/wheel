@@ -1,9 +1,16 @@
 #include "Wheel.hpp"
 #include <iostream>
 #include<cassert>
+#include <unistd.h>
 
-int test()
+void test()
 {
+    uint32_t port = 8001;
+    int fd = Wheel::inst->listen(port, 1);
+    usleep(15 * 100000);
+    Wheel::inst->closeConn(fd);
+    return;
+
     int id = Wheel::inst->addConn(1, 1, Conn::TYPE::listen);
     auto conn = Wheel::inst->getConn(1);
     assert(conn->fd == 1);
@@ -22,8 +29,6 @@ int test()
         ping2, new char[6] {'h', 'e', 'l', 'l', 'o', '\0'}, 6);
     Wheel::inst->send(pong, msg1);
     Wheel::inst->send(pong, msg2);
-
-    return 0;
 }
 
 int main(void) {

@@ -215,8 +215,19 @@ int Wheel::listen(uint32_t port, uint32_t serviceId) {
         cout << "listen error, bind fail" << endl;
         return -1;
     }
-    r = listen(listenFd, 64);
+    r = ::listen(listenFd, 64);
+    if (r < 0) {
+        return -1;
+    }
     addConn(listenFd, serviceId, Conn::TYPE::listen);
     socketWorker->addEvent(listenFd);
     return listenFd;
+}
+
+void Wheel::closeConn(uint32_t fd) {
+   bool succ = removeConn(fd);
+   close(fd);
+   if (succ) {
+       socketWorker->removeEvent(fd);
+   }
 }
