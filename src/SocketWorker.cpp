@@ -1,8 +1,11 @@
 #include "SocketWorker.hpp"
-#include<iostream>
-#include<unistd.h>
-#include<cassert>
-#include<cstring>
+#include "Wheel.hpp"
+#include <cassert>
+#include <cstring>
+#include <fcntl.h>
+#include <iostream>
+#include <sys/socket.h>
+#include <unistd.h>
 
 void SocketWorker::init() {
     cout << "SocketWorker init" << endl;
@@ -52,4 +55,46 @@ void SocketWorker::modifyEvent(int fd, bool epollOut) {
 
 void SocketWorker::onEvent(epoll_event ev) {
     cout << "onEvent" << endl;
+    int fd = ev.data.fd;
+    auto conn = Wheel::inst->getConn(fd);
+    if (conn == NULL) {
+        cout << "onEvent error, can not get conn by fd(" << fd << ")" << endl;
+        return;
+    }
+    bool isRead = ev.events & EPOLLIN;
+    bool isWrite = ev.events & EPOLLOUT;
+    bool isError = ev.events & EPOLLERR;
+    if (conn->type == Conn::TYPE::listen) {
+        if (isRead) {
+            onAccept(conn);
+        }
+    } else {
+        if (isRead || isWrite) {
+            onRw(conn, isRead, isWrite);
+        }
+        if (isError) {
+            cout << "onEven error, fd is " << conn->fd << endl;
+        }
+    }
+}
+
+void SocketWorker::onAccept(shared_ptr<Conn> conn) {
+    cout << "onAccept fd: " << conn->fd << endl;
+    int clientFd = accept(conn->fd, NULL, NULL);
+    if (clientFd < 0) {
+        cout << "accept error" << endl;
+    }
+    fcntl(clientFd, F_SETFL, O_NONBLOCK);
+    Wheel::inst->addConn(clientFd, conn->serviceId, Conn::TYPE::client);
+    struct epoll_event ev;
+    ev.events = EPOLLIN | EPOLLET;
+    ev.data.fd = clientFd;
+    if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientFd, &ev) == -1) {
+        cout << "onAccept epoll_ctl fail: " << strerror(errno) << endl;
+    }
+    auto msg = make_shared<SocketAcceptMsg>();
+    msg->type = BaseMsg::TYPE::SOCKET_ACCEPT;
+    msg->listenFd = conn->fd;
+    msg->clintFd = clientFd;
+    Wheel::inst->send(conn->serviceId, msg);
 }
