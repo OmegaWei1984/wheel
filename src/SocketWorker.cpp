@@ -64,7 +64,7 @@ void SocketWorker::onEvent(epoll_event ev) {
     bool isRead = ev.events & EPOLLIN;
     bool isWrite = ev.events & EPOLLOUT;
     bool isError = ev.events & EPOLLERR;
-    if (conn->type == Conn::TYPE::listen) {
+    if (conn->type == Conn::TYPE::LISTEN) {
         if (isRead) {
             onAccept(conn);
         }
@@ -85,7 +85,7 @@ void SocketWorker::onAccept(shared_ptr<Conn> conn) {
         cout << "accept error" << endl;
     }
     fcntl(clientFd, F_SETFL, O_NONBLOCK);
-    Wheel::inst->addConn(clientFd, conn->serviceId, Conn::TYPE::client);
+    Wheel::inst->addConn(clientFd, conn->serviceId, Conn::TYPE::CLIENT);
     struct epoll_event ev;
     ev.events = EPOLLIN | EPOLLET;
     ev.data.fd = clientFd;
@@ -96,5 +96,16 @@ void SocketWorker::onAccept(shared_ptr<Conn> conn) {
     msg->type = BaseMsg::TYPE::SOCKET_ACCEPT;
     msg->listenFd = conn->fd;
     msg->clintFd = clientFd;
+    Wheel::inst->send(conn->serviceId, msg);
+}
+
+void SocketWorker::onRw(shared_ptr<Conn> conn, bool r, bool w)
+{
+    cout << "onRw fd:" << conn->fd << endl;
+    auto msg = make_shared<SocketRwMsg>();
+    msg->type = BaseMsg::TYPE::SOCKET_RW;
+    msg->fd = conn->fd;
+    msg->isRead = r;
+    msg->isWrite = w;
     Wheel::inst->send(conn->serviceId, msg);
 }

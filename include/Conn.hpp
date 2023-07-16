@@ -7,8 +7,8 @@ using namespace std;
 class Conn {
 public:
     enum TYPE {
-        listen = 1,
-        client = 2,
+        LISTEN = 1,
+        CLIENT = 2,
     };
     
     uint8_t type;

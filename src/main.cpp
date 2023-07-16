@@ -3,15 +3,8 @@
 #include<cassert>
 #include <unistd.h>
 
-void test()
-{
-    uint32_t port = 8001;
-    int fd = Wheel::inst->listen(port, 1);
-    usleep(15 * 100000);
-    Wheel::inst->closeConn(fd);
-    return;
-
-    int id = Wheel::inst->addConn(1, 1, Conn::TYPE::listen);
+void testPingPong() {
+    int id = Wheel::inst->addConn(1, 1, Conn::TYPE::LISTEN);
     auto conn = Wheel::inst->getConn(1);
     assert(conn->fd == 1);
     bool result = Wheel::inst->removeConn(1);
@@ -31,10 +24,22 @@ void test()
     Wheel::inst->send(pong, msg2);
 }
 
+void testListen() {
+    uint32_t port = 8001;
+    int fd = Wheel::inst->listen(port, 1);
+    usleep(15 * 100000);
+    Wheel::inst->closeConn(fd);
+}
+
+void testEcho() {
+    auto t = make_shared<string>("gateway");
+    uint32_t gateway = Wheel::inst->newService(t);
+}
+
 int main(void) {
     new Wheel();
     Wheel::inst->start();
-    test();
+    testEcho();
     Wheel::inst->wait();
     return 0;
 }

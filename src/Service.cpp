@@ -2,6 +2,8 @@
 #include "Wheel.hpp"
 #include <iostream>
 #include <mutex>
+#include <unistd.h>
+#include <cstring>
 
 Service::Service()
 {
@@ -34,6 +36,7 @@ shared_ptr<BaseMsg> Service::popMsg()
 void Service::onInit()
 {
     cout << "[" << id << "] onInit" << endl;
+    Wheel::inst->listen(8002, id);
 }
 
 void Service::onExit()
@@ -51,6 +54,25 @@ void Service::onMsg(shared_ptr<BaseMsg> msg)
     }
     else {
         cout << "[" << id << "] onMsg" << endl;
+    }
+
+    if (msg->type == BaseMsg::TYPE::SOCKET_ACCEPT) {
+        auto m = dynamic_pointer_cast<SocketAcceptMsg>(msg);
+        cout << "new conn, fd: " << m->clintFd << endl;
+    }
+
+    if (msg->type == BaseMsg::TYPE::SOCKET_RW) {
+        auto m = dynamic_pointer_cast<SocketRwMsg>(msg);
+        if (m->isRead) {
+            char buff[512];
+            int len = read(m->fd, &buff, 512);
+            if (len > 0) {
+                write(m->fd, &buff, len);
+            } else {
+                cout << "close fd " << m->fd << strerror(errno) << endl;
+                Wheel::inst->closeConn(m->fd);
+            }
+        }
     }
 }
 

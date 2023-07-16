@@ -219,7 +219,7 @@ int Wheel::listen(uint32_t port, uint32_t serviceId) {
     if (r < 0) {
         return -1;
     }
-    addConn(listenFd, serviceId, Conn::TYPE::listen);
+    addConn(listenFd, serviceId, Conn::TYPE::LISTEN);
     socketWorker->addEvent(listenFd);
     return listenFd;
 }
