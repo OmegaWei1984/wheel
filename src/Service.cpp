@@ -107,3 +107,7 @@ void Service::setInGlobal(bool isInGlobal)
     lock_guard<mutex> lock(inGlobalFlagMutex);
     inGlobal = isInGlobal;
 }
+
+void Service::onServiceMsg(shared_ptr<ServiceMsg> msg) {
+    cout << "onServiceMsg" << endl;
+}
