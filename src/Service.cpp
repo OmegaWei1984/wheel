@@ -48,31 +48,13 @@ void Service::onMsg(shared_ptr<BaseMsg> msg)
 {
     if (msg->type == BaseMsg::TYPE::SERVICE) {
         auto m = dynamic_pointer_cast<ServiceMsg>(msg);
-        cout << "[" << id << "] onMsg: buff is " << m->buff << endl;
-        auto msgRet = Wheel::inst->makeMsg(id, new char[5] {'p', 'i', 'n', 'g', '\0'}, 5);
-        Wheel::inst->send(m->source, msgRet);
-    }
-    else {
-        cout << "[" << id << "] onMsg" << endl;
-    }
-
-    if (msg->type == BaseMsg::TYPE::SOCKET_ACCEPT) {
+        onServiceMsg(m);
+    } else if (msg->type == BaseMsg::TYPE::SOCKET_ACCEPT) {
         auto m = dynamic_pointer_cast<SocketAcceptMsg>(msg);
-        cout << "new conn, fd: " << m->clintFd << endl;
-    }
-
-    if (msg->type == BaseMsg::TYPE::SOCKET_RW) {
+        onAcceptMsg(m);
+    } else if (msg->type == BaseMsg::TYPE::SOCKET_RW) {
         auto m = dynamic_pointer_cast<SocketRwMsg>(msg);
-        if (m->isRead) {
-            char buff[512];
-            int len = read(m->fd, &buff, 512);
-            if (len > 0) {
-                write(m->fd, &buff, len);
-            } else {
-                cout << "close fd " << m->fd << strerror(errno) << endl;
-                Wheel::inst->closeConn(m->fd);
-            }
-        }
+        onRwMsg(m);
     }
 }
 
@@ -110,4 +92,36 @@ void Service::setInGlobal(bool isInGlobal)
 
 void Service::onServiceMsg(shared_ptr<ServiceMsg> msg) {
     cout << "onServiceMsg" << endl;
+}
+
+void Service::onAcceptMsg(shared_ptr<SocketAcceptMsg> msg) {
+    cout << "onAcceptMsg " << msg->clintFd << endl;
+}
+
+void Service::onRwMsg(shared_ptr<SocketRwMsg> msg) {
+    int fd = msg->fd;
+    if (msg->isRead) {
+        const int BUFFSIZE = 512;
+        char buff[BUFFSIZE];
+        int len = 0;
+        do {
+            len = read(fd, &buff, BUFFSIZE);
+            if (len > 0) {
+                onSocketData(fd, buff, len);
+            }
+        } while (len == BUFFSIZE);
+
+        if (len <= 0 && errno != EAGAIN) {
+            if (Wheel::inst->getConn(fd)) {
+                onSocketClose(fd);
+                Wheel::inst->closeConn(fd);
+            }
+        }
+    }
+
+    if (msg->isWrite) {
+        if (Wheel::inst->getConn(fd)) {
+            onSocketWritable(fd);
+        }
+    }
 }
