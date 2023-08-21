@@ -125,3 +125,17 @@ void Service::onRwMsg(shared_ptr<SocketRwMsg> msg) {
         }
     }
 }
+
+void Service::onSocketData(int fd, const char *buff, int len) {
+    cout << "onSocketData fd: " << fd << " buff: " << buff << endl;
+    char writeBuff[2] = {'h', 'i'};
+    write(fd, &writeBuff, 2);
+}
+
+void Service::onSocketWritable(int fd) {
+    cout << "onSocketWriteable fd: " << fd << endl;
+}
+
+void Service::onSocketClose(int fd) {
+    cout << "onSocketClose fd: " << fd << endl;
+}
